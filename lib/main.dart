@@ -57,6 +57,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   void _incrementCounter() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -77,6 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         // TRY THIS: Try changing the color here to a specific color (to
         // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
@@ -120,6 +123,31 @@ class _MyHomePageState extends State<MyHomePage> {
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
+      drawer: Drawer(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: 3,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text('Item $index'),
+                  );
+                },
+              ),
+            ),
+            SafeArea(
+              child: IconButton(
+                onPressed: () {
+                  _scaffoldKey.currentState?.closeDrawer();
+                },
+                icon: const Icon(Icons.settings),
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }
