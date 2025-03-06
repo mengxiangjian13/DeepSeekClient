@@ -1,5 +1,7 @@
 import 'package:deepseek_client/chat_view.dart';
 import 'package:deepseek_client/chat_view_model.dart';
+import 'package:deepseek_client/data_store.dart';
+import 'package:deepseek_client/session_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -7,7 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
-  await Hive.initFlutter();
+  await DataStore.instance.initialize();
   runApp(const MyApp());
 }
 
@@ -79,46 +81,53 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: ChangeNotifierProvider(
-        create: (context) => ChatViewModel(),
-        builder: (context, child) {
-          return const ChatView();
-        }
-      ),// This trailing comma makes auto-formatting nicer for build methods.
-      drawer: Drawer(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: ListView.builder(
-                itemCount: 3,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text('Item $index'),
-                  );
-                },
+    return ChangeNotifierProvider(
+      create: (context) => SessionViewModel(),
+      child: Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          // TRY THIS: Try changing the color here to a specific color (to
+          // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
+          // change color while the other colors stay the same.
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          // Here we take the value from the MyHomePage object that was created by
+          // the App.build method, and use it to set our appbar title.
+          title: Text(widget.title),
+        ),
+        body: ChangeNotifierProvider(
+            create: (context) => ChatViewModel(),
+            builder: (context, child) {
+              return const ChatView();
+            }
+        ),// This trailing comma makes auto-formatting nicer for build methods.
+        drawer: Drawer(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Consumer<SessionViewModel>(
+                  builder: (context, value, child) {
+                    return ListView.builder(
+                      itemCount: value.sessionCount,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title: Text(value.sessionTitle(index)),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-            SafeArea(
-              child: IconButton(
-                onPressed: () {
-                  _scaffoldKey.currentState?.closeDrawer();
-                },
-                icon: const Icon(Icons.settings),
-              ),
-            )
-          ],
+              SafeArea(
+                child: IconButton(
+                  onPressed: () {
+                    _scaffoldKey.currentState?.closeDrawer();
+                  },
+                  icon: const Icon(Icons.settings),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/adapters.dart';
 
 /*
@@ -5,15 +6,38 @@ import 'package:hive_flutter/adapters.dart';
 * 会话信息包括会话id，会话title，
 * */
 class DataStore {
-  static final DataStore _instance = DataStore._internal();
 
-  factory DataStore() {
-    return _instance;
+  final String _sessionBoxName = 'session';
+  final String _messageBoxName = 'message';
+
+  Box? _sessionBox;
+  Box? _messageBox;
+
+  static DataStore? _instance;
+
+  static DataStore get instance {
+    _instance ??= DataStore._internal();
+    return _instance!;
+  }
+
+  Future<void> initialize() async {
+    await Hive.initFlutter();
+    _sessionBox = await Hive.openBox(_sessionBoxName);
+    _messageBox = await Hive.openBox(_messageBoxName);
   }
 
   DataStore._internal() {
-    final box = Hive.box('session');
+
   }
 
+  List<dynamic> getAllSession() {
+    final box = _sessionBox ?? Hive.box(_sessionBoxName);
+    return box.values.toList();
+  }
+
+  void addSession(Map<String, dynamic> session) {
+    final box = _sessionBox ?? Hive.box(_sessionBoxName);;
+    box.add(session);
+  }
 
 }

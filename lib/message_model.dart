@@ -25,16 +25,13 @@ class MessageModel {
 class SessionModel {
   int sessionId;
   String title;
-  List<MessageModel> messages;
 
-  SessionModel({required this.sessionId, required this.title, required this.messages});
+  SessionModel({required this.sessionId, required this.title});
 
-  factory SessionModel.fromJson(Map<String, dynamic> json) {
+  factory SessionModel.fromJson(Map<dynamic, dynamic> json) {
     return SessionModel(
       sessionId: json['sessionId'],
       title: json['title'],
-      messages: List<MessageModel>.from(
-          json['messages'].map((message) => MessageModel.fromJson(message))),
     );
   }
 
@@ -42,7 +39,6 @@ class SessionModel {
     return {
      'sessionId': sessionId,
       'title': title,
-      'messages': messages.map((message) => message.toJson()).toList(),
     };
   }
 }

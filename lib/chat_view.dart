@@ -1,4 +1,5 @@
 import 'package:deepseek_client/chat_view_model.dart';
+import 'package:deepseek_client/session_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,8 +12,10 @@ class ChatView extends StatelessWidget {
       child: Center(
         child: TextButton(
           onPressed: () {
-            ChatViewModel chatViewModel = context.read<ChatViewModel>();
-            chatViewModel.requestChat("你是谁");
+            // ChatViewModel chatViewModel = context.read<ChatViewModel>();
+            // chatViewModel.requestChat("你是谁");
+            SessionViewModel sessionViewModel = context.read<SessionViewModel>();
+            sessionViewModel.addSession("你好");
           },
           child: const Text('Chat'),
         ),
