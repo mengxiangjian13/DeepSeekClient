@@ -25,13 +25,15 @@ class MessageModel {
 class SessionModel {
   int sessionId;
   String title;
+  int modifyTimestamp;
 
-  SessionModel({required this.sessionId, required this.title});
+  SessionModel({required this.sessionId, required this.title, required this.modifyTimestamp});
 
   factory SessionModel.fromJson(Map<dynamic, dynamic> json) {
     return SessionModel(
       sessionId: json['sessionId'],
       title: json['title'],
+      modifyTimestamp: json['modifyTimestamp'],
     );
   }
 
@@ -39,6 +41,7 @@ class SessionModel {
     return {
      'sessionId': sessionId,
       'title': title,
+      'modifyTimestamp': modifyTimestamp,
     };
   }
 }

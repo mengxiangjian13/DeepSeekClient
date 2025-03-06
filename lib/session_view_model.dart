@@ -6,6 +6,7 @@ class SessionViewModel extends ChangeNotifier {
 
   List<SessionModel> sessions = [];
   int currentMaxSessionId = 0;
+  int currentSessionId = 0;
 
   SessionViewModel() {
     List<dynamic> data = DataStore.instance.getAllSession();
@@ -16,6 +17,9 @@ class SessionViewModel extends ChangeNotifier {
         currentMaxSessionId = model.sessionId;
       }
     }
+    // 根据更新时间排序
+    sessions.sort((a, b) => b.modifyTimestamp.compareTo(a.modifyTimestamp));
+    currentSessionId = sessions.isNotEmpty ? sessions[0].sessionId : 0;
   }
 
   int get sessionCount => sessions.length;
@@ -33,12 +37,20 @@ class SessionViewModel extends ChangeNotifier {
 
   void addSession(String title) {
     currentMaxSessionId += 1;
+    DateTime now = DateTime.now();
+    now.millisecondsSinceEpoch;
     SessionModel session = SessionModel(
       sessionId: currentMaxSessionId,
       title: title,
+      modifyTimestamp: now.millisecondsSinceEpoch,
     );
     sessions.insert(0, session);
     DataStore.instance.addSession(session.toJson());
+    notifyListeners();
+  }
+
+  void changeCurrentSession(int index) {
+    currentSessionId = _getSession(index).sessionId;
     notifyListeners();
   }
 }

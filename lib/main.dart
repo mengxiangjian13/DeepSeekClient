@@ -94,11 +94,15 @@ class _MyHomePageState extends State<MyHomePage> {
           // the App.build method, and use it to set our appbar title.
           title: Text(widget.title),
         ),
-        body: ChangeNotifierProvider(
-            create: (context) => ChatViewModel(),
-            builder: (context, child) {
-              return const ChatView();
-            }
+        body: Consumer<SessionViewModel>(
+          builder: (context, value, child) {
+            return ChangeNotifierProvider(
+                create: (context) => ChatViewModel(),
+                builder: (context, child) {
+                  return ChatView(sessionId: value.currentSessionId,);
+                }
+            );
+          }
         ),// This trailing comma makes auto-formatting nicer for build methods.
         drawer: Drawer(
           child: Column(
@@ -112,6 +116,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       itemBuilder: (context, index) {
                         return ListTile(
                           title: Text(value.sessionTitle(index)),
+                          onTap: () {
+                            value.changeCurrentSession(index);
+                          },
                         );
                       },
                     );
