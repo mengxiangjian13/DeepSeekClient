@@ -35,7 +35,12 @@ class SessionViewModel extends ChangeNotifier {
     return _getSession(index).title;
   }
 
-  void addSession(String title) {
+  void prepareNewSession() {
+    currentSessionId = 0;
+    notifyListeners();
+  }
+
+  void createNewSession(String title) {
     currentMaxSessionId += 1;
     DateTime now = DateTime.now();
     now.millisecondsSinceEpoch;
@@ -46,6 +51,7 @@ class SessionViewModel extends ChangeNotifier {
     );
     sessions.insert(0, session);
     DataStore.instance.addSession(session.toJson());
+    currentSessionId = currentMaxSessionId;
     notifyListeners();
   }
 

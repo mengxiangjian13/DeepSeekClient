@@ -67,6 +67,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  SessionViewModel sessionViewModel = SessionViewModel();
+
   @override
   void initState() {
     super.initState();
@@ -82,61 +84,73 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return ChangeNotifierProvider(
-      create: (context) => SessionViewModel(),
-      child: Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-          // TRY THIS: Try changing the color here to a specific color (to
-          // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-          // change color while the other colors stay the same.
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
-          title: Text(widget.title),
-        ),
-        body: Consumer<SessionViewModel>(
-          builder: (context, value, child) {
-            return ChangeNotifierProvider(
-                create: (context) => ChatViewModel(),
-                builder: (context, child) {
-                  return ChatView(sessionId: value.currentSessionId,);
-                }
-            );
-          }
-        ),// This trailing comma makes auto-formatting nicer for build methods.
-        drawer: Drawer(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Consumer<SessionViewModel>(
-                  builder: (context, value, child) {
-                    return ListView.builder(
-                      itemCount: value.sessionCount,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(value.sessionTitle(index)),
-                          onTap: () {
-                            value.changeCurrentSession(index);
-                          },
-                        );
-                      },
-                    );
-                  },
-                ),
+      create: (context) => sessionViewModel,
+      builder: (context, child) {
+        return Scaffold(
+          key: _scaffoldKey,
+          appBar: AppBar(
+            // TRY THIS: Try changing the color here to a specific color (to
+            // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
+            // change color while the other colors stay the same.
+            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+            // Here we take the value from the MyHomePage object that was created by
+            // the App.build method, and use it to set our appbar title.
+            title: Text(widget.title),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  sessionViewModel = context.read<SessionViewModel>();
+                  sessionViewModel.prepareNewSession();
+                },
+                icon: const Icon(Icons.add),
               ),
-              SafeArea(
-                child: IconButton(
-                  onPressed: () {
-                    _scaffoldKey.currentState?.closeDrawer();
-                  },
-                  icon: const Icon(Icons.settings),
-                ),
-              )
             ],
           ),
-        ),
-      ),
+          body: Consumer<SessionViewModel>(
+              builder: (context, value, child) {
+                return ChangeNotifierProvider(
+                    create: (context) => ChatViewModel(),
+                    builder: (context, child) {
+                      return ChatView(sessionId: value.currentSessionId,);
+                    }
+                );
+              }
+          ),// This trailing comma makes auto-formatting nicer for build methods.
+          drawer: Drawer(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Consumer<SessionViewModel>(
+                    builder: (context, value, child) {
+                      return ListView.builder(
+                        itemCount: value.sessionCount,
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            title: Text(value.sessionTitle(index)),
+                            onTap: () {
+                              value.changeCurrentSession(index);
+                              _scaffoldKey.currentState?.closeDrawer();
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+                SafeArea(
+                  child: IconButton(
+                    onPressed: () {
+                      _scaffoldKey.currentState?.closeDrawer();
+                    },
+                    icon: const Icon(Icons.settings),
+                  ),
+                )
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

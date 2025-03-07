@@ -1,14 +1,36 @@
+import 'package:deepseek_client/data_store.dart';
+import 'package:deepseek_client/message_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ChatViewModel extends ChangeNotifier {
-  List<String> messages = [];
+  List<MessageModel> messages = [];
+  int sessionId = 0;
+
+  void updateSession(int sessionId) {
+    if (sessionId != this.sessionId) {
+      this.sessionId = sessionId;
+      messages = [];
+
+      if (sessionId != 0) {
+        List<dynamic> messages = DataStore.instance.getMessages(sessionId);
+        this.messages = messages.map((e) => MessageModel.fromJson(e)).toList();
+      }
+    }
+  }
+
+  void saveNewSessionMessages(int newSessionId) {
+    sessionId = newSessionId;
+    DataStore.instance.saveMessages(sessionId, messages.map((e) => e.toJson()).toList());
+  }
 
   void addMessage(String message) {
-    messages.add(message);
+    messages.add(MessageModel(content: message,
+        reasoningContent: "", sender: "user"));
     notifyListeners();
+    DataStore.instance.saveMessages(sessionId, messages.map((e) => e.toJson()).toList());
   }
 
   requestChat(String message) async {

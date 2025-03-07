@@ -40,4 +40,14 @@ class DataStore {
     box.add(session);
   }
 
+  void saveMessages(int sessionId, List<Map<String, dynamic>> messages) {
+    final box = _messageBox ?? Hive.box(_messageBoxName);
+    box.put(sessionId, messages);
+  }
+
+  List<dynamic> getMessages(int sessionId) {
+    final box = _messageBox ?? Hive.box(_messageBoxName);
+    return box.get(sessionId, defaultValue: []);
+  }
+
 }

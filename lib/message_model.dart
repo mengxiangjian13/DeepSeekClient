@@ -5,7 +5,7 @@ class MessageModel {
 
   MessageModel({required this.content, required this.reasoningContent, required this.sender});
 
-  factory MessageModel.fromJson(Map<String, dynamic> json) {
+  factory MessageModel.fromJson(Map<dynamic, dynamic> json) {
     return MessageModel(
       reasoningContent: json['reasoningContent'],
       content: json['content'],

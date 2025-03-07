@@ -17,31 +17,47 @@ class ChatView extends StatefulWidget {
 
 class ChatViewState extends State<ChatView> {
 
+  bool _createNewSession = false;
+
   @override
   void initState() {
     super.initState();
     print("init current id: ${widget.sessionId}");
+    ChatViewModel chatViewModel = context.read<ChatViewModel>();
+    chatViewModel.updateSession(widget.sessionId);
   }
 
   @override
   void didUpdateWidget(covariant ChatView oldWidget) {
     super.didUpdateWidget(oldWidget);
     print("didUpdateWidget current id: ${widget.sessionId}");
+
+    ChatViewModel chatViewModel = context.read<ChatViewModel>();
+    if (_createNewSession) {
+      chatViewModel.saveNewSessionMessages(widget.sessionId);
+      _createNewSession = false;
+    } else {
+      chatViewModel.updateSession(widget.sessionId);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     print("current id: ${widget.sessionId}");
+    ChatViewModel chatViewModel = context.watch<ChatViewModel>();
     return Container(
       child: Center(
         child: TextButton(
           onPressed: () {
-            // ChatViewModel chatViewModel = context.read<ChatViewModel>();
-            // chatViewModel.requestChat("你是谁");
-            SessionViewModel sessionViewModel = context.read<SessionViewModel>();
-            sessionViewModel.addSession("你好");
+            ChatViewModel chatViewModel = context.read<ChatViewModel>();
+            chatViewModel.addMessage("你好");
+            if (widget.sessionId == 0) {
+              _createNewSession = true;
+              SessionViewModel sessionViewModel = context.read<SessionViewModel>();
+              sessionViewModel.createNewSession("你好");
+            }
           },
-          child: const Text('Chat'),
+          child: Text('Chat(${chatViewModel.messages.length})'),
         ),
       ),
     );
