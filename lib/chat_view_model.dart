@@ -23,17 +23,23 @@ class ChatViewModel extends ChangeNotifier {
 
   void saveNewSessionMessages(int newSessionId) {
     sessionId = newSessionId;
-    DataStore.instance.saveMessages(sessionId, messages.map((e) => e.toJson()).toList());
+    _saveAllMessages();
   }
 
   void addMessage(String message) {
     messages.add(MessageModel(content: message,
         reasoningContent: "", sender: "user"));
     notifyListeners();
+    _saveAllMessages();
+
+    _requestChat(message);
+  }
+
+  _saveAllMessages() {
     DataStore.instance.saveMessages(sessionId, messages.map((e) => e.toJson()).toList());
   }
 
-  requestChat(String message) async {
+  _requestChat(String message) async {
 
     const String deepSeekApiUrl = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
     const String deepSeekApiKey = 'sk-d0065a382c10409cad750dd4da8569ea';
@@ -61,6 +67,11 @@ class ChatViewModel extends ChangeNotifier {
 
       // 检查响应状态码
       if (streamedResponse.statusCode == 200) {
+        MessageModel model = MessageModel(content: "",
+            reasoningContent: "", sender: "assistant");
+        messages.add(model);
+        notifyListeners();
+
         // 监听数据流
         await for (var chunk in streamedResponse.stream.transform(utf8.decoder)) {
           // 解析数据块
@@ -74,6 +85,8 @@ class ChatViewModel extends ChangeNotifier {
                   final Map<String, dynamic> data = jsonDecode(jsonString);
                   final String reasoningContent = data['choices'][0]['delta']['reasoning_content'] ?? '';
                   final String content = data['choices'][0]['delta']['content'] ?? '';
+                  model.reasoningContent += reasoningContent;
+                  model.content += content;
                   if (kDebugMode) {
                     print("推理内容: $reasoningContent");
                     print("回答内容: $content");
@@ -85,6 +98,7 @@ class ChatViewModel extends ChangeNotifier {
                     } else {
                       print('解析错误: $e');
                     }
+                    _saveAllMessages();
                   }
                 }
               }
