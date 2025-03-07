@@ -46,21 +46,44 @@ class ChatViewState extends State<ChatView> {
     print("current id: ${widget.sessionId}");
     ChatViewModel chatViewModel = context.watch<ChatViewModel>();
     return Container(
-      child: Center(
-        child: TextButton(
-          onPressed: () {
-            ChatViewModel chatViewModel = context.read<ChatViewModel>();
-            chatViewModel.addMessage("你好");
-            if (widget.sessionId == 0) {
-              _createNewSession = true;
-              SessionViewModel sessionViewModel = context.read<SessionViewModel>();
-              sessionViewModel.createNewSession("你好");
-            }
-          },
-          child: Text('Chat(${chatViewModel.messages.length})'),
-        ),
+      child: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: chatViewModel.messages.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(chatViewModel.messages[index].content),
+                  subtitle: Text(chatViewModel.messages[index].reasoningContent),
+                );
+              },
+            )
+          ),
+          Container(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              decoration: const InputDecoration(
+                hintText: '输入你的问题',
+                border: OutlineInputBorder(),
+              ),
+              onSubmitted: (value) {
+                _sendMessage(value);
+              },
+            ),
+          )
+        ],
       ),
     );
+  }
+
+  _sendMessage(String message) {
+    ChatViewModel chatViewModel = context.read<ChatViewModel>();
+    chatViewModel.addMessage("你好");
+    if (widget.sessionId == 0) {
+      _createNewSession = true;
+      SessionViewModel sessionViewModel = context.read<SessionViewModel>();
+      sessionViewModel.createNewSession("你好");
+    }
   }
 
 }

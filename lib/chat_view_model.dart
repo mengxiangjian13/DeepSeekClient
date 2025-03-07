@@ -87,6 +87,7 @@ class ChatViewModel extends ChangeNotifier {
                   final String content = data['choices'][0]['delta']['content'] ?? '';
                   model.reasoningContent += reasoningContent;
                   model.content += content;
+                  notifyListeners();
                   if (kDebugMode) {
                     print("推理内容: $reasoningContent");
                     print("回答内容: $content");
